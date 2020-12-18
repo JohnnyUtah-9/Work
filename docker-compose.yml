@@ -5,6 +5,11 @@ services:
     container_name: "Flask_App"
     links:
       - db
+<<<<<<< HEAD
+=======
+    depends_on:
+      - db
+>>>>>>> c2ac05a (Created project skeleton)
     ports:
       - "5000:5000"
 
