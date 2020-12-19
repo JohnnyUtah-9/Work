@@ -1,3 +1,9 @@
 Flask
 flask-mysql
 simplejson
+requests
+<<<<<<<<< Temporary merge branch 1
+configparse
+=========
+configparser
+>>>>>>>>> Temporary merge branch 2
