@@ -1,7 +1,5 @@
 from typing import List, Dict
 import simplejson as json
-import requests
-import configparser
 from flask import Flask, request, Response, redirect
 from flask import render_template
 from flaskext.mysql import MySQL
@@ -46,11 +44,10 @@ def form_edit_get(city_id):
 @app.route('/edit/<int:city_id>', methods=['POST'])
 def form_update_post(city_id):
     cursor = mysql.get_db().cursor()
-    inputData = (request.form.get('fldName'), request.form.get('fldLat'), request.form.get('fldLong'),
-                 request.form.get('fldCountry'), request.form.get('fldAbbreviation'),
-                 request.form.get('fldCapitalStatus'), request.form.get('fldPopulation'), city_id)
-    sql_update_query = """UPDATE tblCitiesImport t SET t.fldName = %s, t.fldLat = %s, t.fldLong = %s, t.fldCountry = 
-    %s, t.fldAbbreviation = %s, t.fldCapitalStatus = %s, t.fldPopulation = %s WHERE t.id = %s """
+    inputData = (request.form.get('name'), request.form.get('movie'), request.form.get('year'),
+                 request.form.get('age'), city_id)
+    sql_update_query = """UPDATE tblCitiesImport t SET t.name = %s, t.movie = %s, t.year = %s, t.age = 
+    %s, WHERE t.id = %s """
     cursor.execute(sql_update_query, inputData)
     mysql.get_db().commit()
     return redirect("/", code=302)
@@ -63,10 +60,9 @@ def form_insert_get():
 @app.route('/cities/new', methods=['POST'])
 def form_insert_post():
     cursor = mysql.get_db().cursor()
-    inputData = (request.form.get('fldName'), request.form.get('fldLat'), request.form.get('fldLong'),
-                 request.form.get('fldCountry'), request.form.get('fldAbbreviation'),
-                 request.form.get('fldCapitalStatus'), request.form.get('fldPopulation'))
-    sql_insert_query = """INSERT INTO tblCitiesImport (fldName,fldLat,fldLong,fldCountry,fldAbbreviation,fldCapitalStatus,fldPopulation) VALUES (%s, %s,%s, %s,%s, %s,%s) """
+    inputData = (request.form.get('name'), request.form.get('movie'), request.form.get('year'),
+                 request.form.get('age'))
+    sql_insert_query = """INSERT INTO tblCitiesImport (name,movie,year,age) VALUES (%s, %s,%s, %s) """
     cursor.execute(sql_insert_query, inputData)
     mysql.get_db().commit()
     return redirect("/", code=302)
@@ -117,54 +113,6 @@ def api_delete(city_id) -> str:
     resp = Response(status=210, mimetype='application/json')
     return resp
 
-@app.route('/api/openweathermap/')
-def weather_dashboard():
-    return render_template('index.html')
-
-@app.route('/results', methods=['POST'])
-def render_results():
-    city_name = request.form['CityName']
-
-    api_key = get_api_key()
-    data = get_weather_results(city_name, api_key)
-    temp = "{0:.2f}".format(data["main"]["temp"])
-    feels_like = "{0:.2f}".format(data["main"]["feels_like"])
-    weather = data["weather"][0]["main"]
-    location = data["name"]
-
-    return render_template('#',
-                           location=location, temp=temp,
-                           feels_like=feels_like, weather=weather)
-@app.route('/api/zipcodeweather/')
-def get_zipcode(zip, api_key):
-    api_url = http://api.openweathermap.org/data/2.5/weather?zip={zip code}&appid={API key}
-
-    return render_template('index.html')
-
-@app.route('/results', methods=['POST'])
-def render_results():
-    city_name = request.form['zip']
-
-    api_key = get_api_key()
-    data = get_weather_results(city_name, api_key)
-    temp = "{0:.2f}".format(data["main"]["temp"])
-    feels_like = "{0:.2f}".format(data["main"]["feels_like"])
-    weather = data["weather"][0]["main"]
-    location = data["name"]
-
-    return render_template('zip', location=location, temp=temp, feels_like=feels_like, weather=weather)
-
-def get_api_key():
-    config = configparser.ConfigParser()
-    config.read('config.ini')
-    return config['openweathermap']['api']
-
-def get_weather_results(city_name, api_key):
-   api_url = "http://api_url = api.openweathermap.org/" \
-             "data/2.5/weather?q={}&units=imperial&appid={}.format(city_name, api_key)"
-   r = requests.get(api_url)
-   return r.json()
-
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)
